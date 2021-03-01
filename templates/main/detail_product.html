@@ -1,0 +1,75 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_filters %}
+{% block content %}
+    <div class="container">
+        <!-- Page Heading/Breadcrumbs -->
+        <h1 class="mt-4 mb-3">{{ product.title }}
+            <small>'{{ product.brand.title }}'</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="breadcrumb-item active">{{ product.title }}</li>
+        </ol>
+
+        <!-- Portfolio Item Row -->
+        <div class="row">
+
+            <div class="col-md-8">
+                <img class="img-fluid" src="{{ product.image.url }}" alt="">
+            </div>
+
+            <div class="col-md-4">
+                <h3 class="my-3">Описание</h3>
+                <p>{{ product.description }}</p>
+                <h3 class="my-3">Project Details</h3>
+                <ul>
+                    <li>Lorem Ipsum</li>
+                    <li>Dolor Sit Amet</li>
+                    <li>Consectetur</li>
+                    <li>Adipiscing Elit</li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- /.row -->
+
+        <!-- Related Projects Row -->
+        <h3 class="my-4">Похожие продукты</h3>
+        <hr>
+        <div class="row">
+            {% for item in related_products %}
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <h4>{{ item.title }}</h4>
+                    <a href="{% url 'detail_product' pk=item.pk %}">
+                        <img style="width: 300px; height: 160px;" class="img-fluid" src="{{ item.image.url }}" alt="">
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <div class="card my-4">
+            <h5 class="card-header">Оставить отзыв:</h5>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary">Оставить</button>
+                </form>
+            </div>
+        </div>
+        <h3 class="my-4">Отзывы</h3>
+        <!-- Single Comment -->
+        <div class="media mb-4">
+            {% for review in reviews %}
+                <div class="media-body">
+                    <h5 class="mt-0">{{ review.owner.username }}</h5>
+                    <hr>
+                    <p class="mt-0">{{ review.stars }}</p>
+                    <p class="mt-0">{{ review.text }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

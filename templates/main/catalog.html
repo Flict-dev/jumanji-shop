@@ -1,0 +1,50 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+
+        <!-- Page Heading/Breadcrumbs -->
+        <h1 class="mt-4 mb-3">Каталог
+            <small>Категории</small>
+        </h1>
+
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="index.html">Home</a>
+            </li>
+            <li class="breadcrumb-item active">Services</li>
+        </ol>
+
+        <!-- Image Header -->
+        <img class="img-fluid rounded mb-4" src="{% static 'img/catalog.png' %}" alt="">
+
+        <!-- Marketing Icons Section -->
+        <div class="row">
+            {% for category in categories %}
+                <div class="col-lg-3 mb-4">
+                    <div class="card h-100">
+                        <h4 class="card-header">{{ category.title }}</h4>
+                        <div class="card-body">
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse
+                                necessitatibus neque.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'detail_category' pk=category.pk %}" class="btn btn-primary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <h2>Компании</h2>
+        <div class="row">
+            {% for company in companies %}
+                <div class="col-lg-2 col-sm-4 mb-4">
+                    <a href="{% url 'detail_company' pk=company.pk %}">
+                        <img class="img-fluid" style="width: 200px; height: 100px;" src="{{ company.logo.url }}" alt="">
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

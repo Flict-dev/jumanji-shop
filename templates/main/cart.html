@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+{% block content %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Товар</th>
+            <th scope="col">Кол-во</th>
+            <th scope="col">Стоимость</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in cart.products.all %}
+            <tr>
+                <th scope="row"></th>
+                <td>{{ item.product.title }}</td>
+                <td>{{ item.qty }}</td>
+                <td>{{ item.product.price }}</td>
+                <td>
+                    <button class="btn btn-danger"><a style="color:#FFF;" href="{% url 'delete_from_cart' pk=item.pk%}">Удалить</a></button>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th scope="row"></th>
+            <td>Итог:</td>
+            <td>{{ cart.final_quantity }}</td>
+            <td>{{ cart.final_price }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

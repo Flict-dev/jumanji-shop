@@ -1,0 +1,54 @@
+{% extends 'base/base.html' %}
+{% block content %}
+    <div class="container">
+
+        <!-- Page Heading/Breadcrumbs -->
+        <h1 class="mt-4 mb-3">Каталог
+            <small>{{ category.title }}</small>
+        </h1>
+
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="breadcrumb-item active">Каталог</li>
+        </ol>
+
+        <!-- Content Row -->
+        <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col-lg-3 mb-4">
+                <div class="list-group">
+                    {% for category in categories %}
+                        <a href="{% url 'detail_category' pk=category.pk %}"
+                           class="list-group-item">{{ category.title }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Content Column -->
+            <div class="col-lg-9 mb-4">
+                <div class="row">
+                    {% for item in products %}
+                        <div class="col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <h4 class="card-header">{{ item.title }}</h4>
+                                <div class="card-body">
+                                    <a href="{% url 'detail_product' pk=item.pk %}">
+                                        <img class="card-img-top" style="width: 200px; height: 120px;"
+                                             src="{{ item.image.url }}" alt="img">
+                                    </a>
+                                    <hr>
+                                    <p class="card-text">{{ item.price }} руб</p>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="{% url 'add' pk=item.pk %}" class="btn btn-primary">Добавить в корзину</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+{% endblock %}
