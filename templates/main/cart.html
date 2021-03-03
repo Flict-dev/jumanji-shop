@@ -17,8 +17,10 @@
                 <td>{{ item.qty }}</td>
                 <td>{{ item.product.price }}</td>
                 <td>
-                    <button class="btn btn-danger"><a style="color:#FFF;" href="{% url 'delete_from_cart' pk=item.pk%}">Удалить</a></button>
+                    <a style="color:#FFF;" href="{% url 'delete_from_cart' pk=item.pk %}">
+                        <button class="btn btn-danger">Удалить</button></a>
                 </td>
+                </a>
             </tr>
         {% endfor %}
         <tr>

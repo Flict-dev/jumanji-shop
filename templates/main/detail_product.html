@@ -6,13 +6,7 @@
         <h1 class="mt-4 mb-3">{{ product.title }}
             <small>'{{ product.brand.title }}'</small>
         </h1>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'home' %}">Home</a>
-            </li>
-            <li class="breadcrumb-item active">{{ product.title }}</li>
-        </ol>
-
+        <hr>
         <!-- Portfolio Item Row -->
         <div class="row">
 
@@ -21,7 +15,11 @@
             </div>
 
             <div class="col-md-4">
-                <h3 class="my-3">Описание</h3>
+                <div class="row justify-content-sm-between">
+                    <h3 class="my-3">Описание</h3>
+                    <a class="my-3" href="{% url 'favorites-add' pk=product.pk %}"><button class="btn btn-info">★</button></a>
+                </div>
+
                 <p>{{ product.description }}</p>
                 <h3 class="my-3">Project Details</h3>
                 <ul>

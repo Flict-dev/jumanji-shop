@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Product, Category, Review, Company, Speciality, Cart, CartProduct
+from .models import Product, Category, Review, Company, Speciality, Cart, CartProduct, Favorites
 
 
 @admin.register(Product)
@@ -26,8 +26,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('id', 'owner', 'stars', 'text')
-    list_filter = ('owner',)
+    list_display = ('id', 'owner', 'stars', 'text', 'product')
+    list_filter = ('owner', 'product')
 
 
 @admin.register(Company)
@@ -48,7 +48,8 @@ class CartAdmin(admin.ModelAdmin):
     raw_id_fields = ('products',)
 
 
-@admin.register(CartProduct)
-class CartProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'qty', 'cart', 'final_price')
-    list_filter = ('product', 'cart')
+@admin.register(Favorites)
+class FavoritesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'owner')
+    list_filter = ('owner',)
+    raw_id_fields = ('products',)

@@ -2,15 +2,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.views.generic.base import View
 
 from app.forms import ReviewForm
-from app.mixins import CartMixin
-from app.models import Product, CartProduct, Cart, Review, Category, Company
+from app.mixins import CartMixin, FavoritesMixin
+from app.models import Product, CartProduct, Cart, Review, Category, Company, Favorites, FavoriteProduct
 from app.utils import recount_cart
 
 
@@ -123,3 +125,34 @@ class CategoryDetailView(View):
             'products': products,
         }
         return render(request, 'main/detail_category.html', context=context)
+
+
+class AddToFavorites(FavoritesMixin, View):
+    def get(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, pk=kwargs['pk'])
+        try:
+            fav_product = FavoriteProduct.objects.get(owner=request.user)
+        except ObjectDoesNotExist:
+            fav_product = FavoriteProduct.objects.create(owner=request.user, product=product)
+        self.favorites.products.add(fav_product)
+        self.favorites.save()
+        return redirect('/favorites/')
+
+
+class DelFromFavorites(FavoritesMixin, View):
+    def get(self, request, **kwargs):
+        try:
+            favorite = self.favorites.products.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        favorite.delete()
+        return redirect('/favorites/')
+
+
+class FavoritesView(FavoritesMixin, ListView):
+    template_name = 'main/favorites.html'
+    model = Favorites
+    context_object_name = 'favorites'
+
+    def get_queryset(self):
+        return Favorites.objects.filter(owner=self.request.user)

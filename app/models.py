@@ -28,6 +28,13 @@ class Product(models.Model):
 class Category(models.Model):
     title = models.CharField(max_length=30, verbose_name='Название категории')
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.title
+
 
 class Review(models.Model):
     RATING_CHOICES = [
@@ -42,6 +49,13 @@ class Review(models.Model):
     text = models.TextField(max_length=500, verbose_name='Озыв')
     product = models.ForeignKey('Product', verbose_name='Продукт', on_delete=models.CASCADE,
                                 related_name='review_product')
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+    def __str__(self):
+        return f'Отзыв пользователя - {self.owner}'
 
 
 class Company(models.Model):
@@ -101,4 +115,24 @@ class CartProduct(models.Model):
         verbose_name_plural = 'Продукты для корзины'
 
     def __str__(self):
-        return f'Продукт для корзины пользователя - {self.cart.owner.username}'
+        return f'Продукт для корзины пользователя - {self.cart.owner}'
+
+
+class Favorites(models.Model):
+    products = models.ManyToManyField('FavoriteProduct', verbose_name='Избранные продукты')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+
+    def __str__(self):
+        return self.owner.username
+
+
+class FavoriteProduct(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name='Продукт для избранного')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
+
+    def __str__(self):
+        return self.owner.username
