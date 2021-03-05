@@ -1,17 +1,25 @@
 body {
-  padding-top: 56px;
+    padding-top: 56px;
 }
 
 .carousel-item {
-  height: 65vh;
-  min-height: 300px;
-  background: no-repeat center center scroll;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+    height: 65vh;
+    min-height: 300px;
+    background: no-repeat center center scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 .portfolio-item {
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
+
+.my-card-text {
+    width: 100%;
+    height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+

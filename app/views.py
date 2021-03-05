@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -12,7 +12,7 @@ from django.views.generic.base import View
 
 from app.forms import ReviewForm
 from app.mixins import CartMixin, FavoritesMixin
-from app.models import Product, CartProduct, Cart, Review, Category, Company, Favorites, FavoriteProduct
+from app.models import Product, CartProduct, Review, Category, Company, Favorites, FavoriteProduct
 from app.utils import recount_cart
 
 
@@ -67,13 +67,14 @@ class DetailProductView(View):
         related_products = Product.objects.filter(
             Q(category__title__icontains=product.category.title)
         )
-        form = ReviewForm
-        reviews = Review.objects.filter(product=product)
+        reviews = Review.objects.filter(product=product).select_related('product')
+        star_list = reviews.get(owner__id=1)
+        print(star_list)
         context = {
             'product': product,
             'related_products': related_products,
             'reviews': reviews,
-            'form': form,
+            'form': ReviewForm,
         }
         return render(request, 'main/detail_product.html', context=context)
 
@@ -84,9 +85,11 @@ class DetailProductView(View):
             stars = form.cleaned_data['stars']
             text = form.cleaned_data['text']
             if request.user.is_authenticated:
-                Review.objects.create(owner=request.user, text=text, stars=stars, product=product)
+                new_rev = Review.objects.create(owner=request.user, text=text, stars=stars, product=product)
+                product.review.add(new_rev)
+                product.save()
                 messages.info(request, 'Спасибо за отзыв!')
-                return redirect('/login/')
+                return redirect('/')
             else:
                 messages.info(request, 'Для того, чтобы оставить отзыв вам необходимо зарегистрироваться')
                 return redirect('/login/')
@@ -131,7 +134,7 @@ class AddToFavorites(FavoritesMixin, View):
     def get(self, request, *args, **kwargs):
         product = get_object_or_404(Product, pk=kwargs['pk'])
         try:
-            fav_product = FavoriteProduct.objects.get(owner=request.user)
+            fav_product = FavoriteProduct.objects.get(product=product)
         except ObjectDoesNotExist:
             fav_product = FavoriteProduct.objects.create(owner=request.user, product=product)
         self.favorites.products.add(fav_product)
@@ -143,10 +146,10 @@ class DelFromFavorites(FavoritesMixin, View):
     def get(self, request, **kwargs):
         try:
             favorite = self.favorites.products.get(pk=kwargs['pk'])
+            favorite.delete()
+            return redirect('/favorites/')
         except ObjectDoesNotExist:
             raise Http404
-        favorite.delete()
-        return redirect('/favorites/')
 
 
 class FavoritesView(FavoritesMixin, ListView):

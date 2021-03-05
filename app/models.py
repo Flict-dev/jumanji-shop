@@ -12,8 +12,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     brand = models.ForeignKey('Company', on_delete=models.CASCADE, verbose_name='Бренд')
     description = models.TextField(max_length=1000, verbose_name='Описание', blank=True, null=True)
-    review = models.ForeignKey('Review', on_delete=models.CASCADE, verbose_name='Отзыв', blank=True, null=True,
-                               related_name='product_review')
+    review = models.ManyToManyField('Review', verbose_name='Отзыв', blank=True,
+                                    related_name='product_review')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, verbose_name='Категория')
     availability = models.BooleanField(default=True, verbose_name='Наличие', blank=True)
 
@@ -38,14 +38,14 @@ class Category(models.Model):
 
 class Review(models.Model):
     RATING_CHOICES = [
-        ('FN', '★★★★★'),
-        ('GD', '★★★★'),
-        ('BD', '★★★'),
-        ('VB', '★★'),
-        ('AL', '★'),
+        ('5', '★★★★★'),
+        ('4', '★★★★'),
+        ('3', '★★★'),
+        ('2', '★★'),
+        ('1', '★'),
     ]
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    stars = models.CharField(choices=RATING_CHOICES, default='AL', max_length=20)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    stars = models.CharField(choices=RATING_CHOICES, default=1, max_length=20)
     text = models.TextField(max_length=500, verbose_name='Озыв')
     product = models.ForeignKey('Product', verbose_name='Продукт', on_delete=models.CASCADE,
                                 related_name='review_product')

@@ -59,15 +59,15 @@
         </div>
         <h3 class="my-4">Отзывы</h3>
         <!-- Single Comment -->
+    {% for review in reviews %}
         <div class="media mb-4">
-            {% for review in reviews %}
                 <div class="media-body">
                     <h5 class="mt-0">{{ review.owner.username }}</h5>
                     <hr>
                     <p class="mt-0">{{ review.stars }}</p>
                     <p class="mt-0">{{ review.text }}</p>
                 </div>
-            {% endfor %}
         </div>
+    {% endfor %}
     </div>
 {% endblock %}

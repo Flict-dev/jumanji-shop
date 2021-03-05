@@ -30,7 +30,7 @@
                         <a class="btn btn-primary" href="{% url 'detail_product' pk=item.product.pk %}">Подробнее
                             <span class="glyphicon glyphicon-chevron-right"></span>
                         </a>
-                        <a class="my-3" href="{% url 'favorites-del' pk=item.product.pk %}">
+                        <a class="my-3" href="{% url 'favorites-del' pk=item.pk %}">
                             <button class="btn btn-danger">X</button>
                         </a>
                     </div>
@@ -39,7 +39,31 @@
                 <hr>
             {% endfor %}
         {% endfor %}
+        <hr>
 
         <!-- Pagination -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+        </ul>
     </div>
 {% endblock %}
