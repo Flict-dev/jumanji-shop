@@ -90,6 +90,7 @@ class Cart(models.Model):
     final_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Окончательная цена', default=0,
                                       null=True)
     anon = models.BooleanField(default=False, verbose_name='Анон')
+    in_order = models.BooleanField(default=False, verbose_name='Статус корзины')
 
     def __str__(self):
         return f'Корзина пользователья - {self.owner.username}'
@@ -104,7 +105,7 @@ class CartProduct(models.Model):
     qty = models.PositiveIntegerField(default=1, verbose_name='Кол-во товара')
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE, verbose_name='Корзина')
     final_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Окончательная цена продукта')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец', null=True)  # Убрать null
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
 
     def save(self, *args, **kwargs):
         self.final_price = self.qty * self.product.price
@@ -136,3 +137,28 @@ class FavoriteProduct(models.Model):
 
     def __str__(self):
         return self.owner.username
+
+    class Meta:
+        verbose_name = 'Продукт для fav'
+        verbose_name_plural = 'Продукты для fav'
+
+
+# ДОДЕЛАТЬ
+class Order(models.Model):
+    first_name = models.CharField(max_length=30, verbose_name='Имя')
+    last_name = models.CharField(max_length=30, verbose_name='Фамилия')
+    address = models.CharField(max_length=70, verbose_name='Адрес')
+    phone = models.CharField(max_length=30, verbose_name='Телефон')
+    email = models.EmailField(verbose_name='Почта')
+    comment = models.TextField(max_length=1000, verbose_name='Комментраий')
+    date_at = models.DateField(verbose_name='Число получения заказа')
+    published_at = models.DateTimeField(auto_now_add=True)
+    cart = models.ForeignKey('Cart', on_delete=models.CASCADE, verbose_name='Корзина')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
+
+    def __str__(self):
+        return f'Заказ пользователя - {self.owner.username}'
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'

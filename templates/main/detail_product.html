@@ -4,7 +4,7 @@
     <div class="container">
         <!-- Page Heading/Breadcrumbs -->
         <h1 class="mt-4 mb-3">{{ product.title }}
-            <small>'{{ product.brand.title }}'</small>
+            <small>\/ {{ rate }}★</small>
         </h1>
         <hr>
         <!-- Portfolio Item Row -->
@@ -57,7 +57,7 @@
                 </form>
             </div>
         </div>
-        <h3 class="my-4">Отзывы</h3>
+        <h3 class="my-4">Отзывы:</h3>
         <!-- Single Comment -->
     {% for review in reviews %}
         <div class="media mb-4">

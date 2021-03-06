@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load crispy_forms_filters %}
 {% block content %}
     <div class="col-lg-9 m-auto d-flex flex-column align-items-center">
         <h1 class="m-5">Корзина</h1>
@@ -16,7 +17,7 @@
                 <tr>
                     <td><a href="{% url 'detail_product' pk=item.product.pk %}">{{ item.product.title }}</a></td>
                     <td>{{ item.qty }}</td>
-                    <td>{{ item.final_price }} руб</td>
+                    <td>{{ item.product.price }} руб</td>
                     <td>
                         <a style="color:#FFF;" href="{% url 'delete_from_cart' pk=item.pk %}">
                             <button class="btn btn-danger">Удалить</button>
@@ -24,17 +25,20 @@
                     </td>
                 </tr>
             {% endfor %}
-            <tr>
-                <td>Итог:</td>
-                <td>{{ cart.final_quantity }}</td>
-                <td>{{ cart.final_price }} руб</td>
-                <td>
-                    <a style="color:#FFF;" href="{% url 'order' %}">
-                        <button class="btn btn-primary">Оформить</button>
-                    </a>
-                </td>
-            </tr>
+
             </tbody>
         </table>
+        <div>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button class="btn btn-primary" type="submit">Заказать</button>
+            </form>
+        </div>
     </div>
 {% endblock %}
+<tr>
+    <td>Итог:</td>
+    <td>{{ cart.final_quantity }}</td>
+    <td>{{ cart.final_price }} руб</td>
+</tr>

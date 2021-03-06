@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q, Avg
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -10,9 +11,9 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView
 from django.views.generic.base import View
 
-from app.forms import ReviewForm
+from app.forms import ReviewForm, OrderForm
 from app.mixins import CartMixin, FavoritesMixin
-from app.models import Product, CartProduct, Review, Category, Company, Favorites, FavoriteProduct
+from app.models import Product, CartProduct, Review, Category, Company, Favorites, FavoriteProduct, Order
 from app.utils import recount_cart
 
 
@@ -21,7 +22,7 @@ class MainView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MainView, self).get_context_data()
-        context['products'] = Product.objects.all()[:6]
+        context['products'] = Product.objects.filter(availability=True)[:6]
         return context
 
 
@@ -39,7 +40,8 @@ class AddToCart(CartMixin, View):
             except ObjectDoesNotExist:
                 product_for_cart = CartProduct.objects.create(
                     product=product,
-                    cart=self.cart
+                    cart=self.cart,
+                    user=request.user,
                 )
             self.cart.products.add(product_for_cart)
             recount_cart(self.cart)
@@ -57,10 +59,10 @@ class DeleteFromCart(CartMixin, View):
 @method_decorator(login_required, name='get')
 class CartView(CartMixin, View):
     def get(self, request):
-        cart = self.cart
-        return render(request, 'main/cart.html', context={'cart': cart})
+        return render(request, 'main/cart.html', context={'cart': self.cart})
 
 
+# продумать момент с instance
 class DetailProductView(View):
     def get(self, request, pk):
         product = Product.objects.get(id=pk)
@@ -68,13 +70,17 @@ class DetailProductView(View):
             Q(category__title__icontains=product.category.title)
         )
         reviews = Review.objects.filter(product=product).select_related('product')
-        star_list = reviews.get(owner__id=1)
-        print(star_list)
+        rate = reviews.aggregate(avg=Avg('stars'))['avg']
+        try:
+            form = ReviewForm(instance=reviews.get(owner=request.user))
+        except ObjectDoesNotExist:
+            form = ReviewForm
         context = {
             'product': product,
             'related_products': related_products,
             'reviews': reviews,
-            'form': ReviewForm,
+            'rate': rate,
+            'form': form,
         }
         return render(request, 'main/detail_product.html', context=context)
 
@@ -159,3 +165,29 @@ class FavoritesView(FavoritesMixin, ListView):
 
     def get_queryset(self):
         return Favorites.objects.filter(owner=self.request.user)
+
+
+class MakeOrderView(CartMixin, View):
+    def get(self, request):
+        return render(request, 'main/order.html', context={'form': OrderForm, 'cart': self.cart})
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            self.cart.in_order = True
+            self.cart.save()
+            Order.objects.create(
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                phone=form.cleaned_data['phone'],
+                address=form.cleaned_data['address'],
+                email=form.cleaned_data['email'],
+                date_at=form.cleaned_data['date_at'],
+                comment=form.cleaned_data['comment'],
+                owner=request.user,
+                cart=self.cart
+            )
+            messages.info(request, 'Спасибо за заказ!')
+            return redirect('/')
+        return render(request, 'main/order.html', context={'form': form, 'cart': self.cart})

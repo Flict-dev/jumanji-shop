@@ -31,9 +31,9 @@ class FavoritesMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             try:
-                self.favorites = Favorites.objects.get(owner=request.user.id)
+                self.favorites = Favorites.objects.get(owner=request.user)
             except ObjectDoesNotExist:
-                self.favorites = Favorites.objects.create(owner=request.user.id)
+                self.favorites = Favorites.objects.create(owner=request.user)
         else:
             messages.info(request, 'Вам необходимо зарегистрироваться, чтобы добовлять товары в избранное')
             return redirect('/login/')
