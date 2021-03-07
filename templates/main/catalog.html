@@ -2,23 +2,16 @@
 {% load static %}
 {% block content %}
     <div class="container">
-
-        <!-- Page Heading/Breadcrumbs -->
         <h1 class="mt-4 mb-3">Каталог
             <small>Категории</small>
         </h1>
-
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <a href="index.html">Home</a>
             </li>
             <li class="breadcrumb-item active">Services</li>
         </ol>
-
-        <!-- Image Header -->
         <img class="img-fluid rounded mb-4" src="{% static 'img/catalog.png' %}" alt="">
-
-        <!-- Marketing Icons Section -->
         <div class="row">
             {% for category in categories %}
                 <div class="col-lg-3 mb-4">

@@ -1,22 +1,16 @@
 {% extends 'base/base.html' %}
 {% block content %}
     <div class="container">
-
-        <!-- Page Heading/Breadcrumbs -->
         <h1 class="mt-4 mb-3">Каталог
             <small>{{ category.title }}</small>
         </h1>
-
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <a href="{% url 'home' %}">Home</a>
             </li>
             <li class="breadcrumb-item active">Каталог</li>
         </ol>
-
-        <!-- Content Row -->
         <div class="row">
-            <!-- Sidebar Column -->
             <div class="col-lg-3 mb-4">
                 <div class="list-group">
                     {% for category in categories %}
@@ -25,7 +19,6 @@
                     {% endfor %}
                 </div>
             </div>
-            <!-- Content Column -->
             <div class="col-lg-9 mb-4">
                 <div class="row">
                     {% for item in products %}
@@ -49,8 +42,6 @@
                     {% endfor %}
                 </div>
             </div>
-            <!-- /.row -->
-
         </div>
     </div>
 {% endblock %}

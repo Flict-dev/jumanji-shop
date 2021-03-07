@@ -1,19 +1,14 @@
 {% extends 'base/base.html' %}
 {% block content %}
     <div class="container">
-
-        <!-- Page Heading/Breadcrumbs -->
         <h1 class="mt-4 mb-3">Избранное
         </h1>
-
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <a href="{% url 'home' %}">Home</a>
             </li>
             <li class="breadcrumb-item active">Portfolio 1</li>
         </ol>
-
-        <!-- Project One -->
         {% for item in page_obj.object_list %}
             <div class="row">
                 <div class="col-md-6">
@@ -33,12 +28,9 @@
                     </a>
                 </div>
             </div>
-            <!-- /.row -->
             <hr>
         {% endfor %}
         <hr>
-
-        <!-- Pagination -->
         <ul class="pagination justify-content-center">
             {% for page in page_obj.paginator.page_range %}
                 {% if page_obj.number == page %}

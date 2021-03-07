@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from django.db.models import Q, Avg
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -66,16 +67,14 @@ class DetailProductView(View):
         related_products = Product.objects.filter(
             Q(category__title__icontains=product.category.title)
         )
-        reviews = Review.objects.filter(product=product).select_related('product')
-        rate = reviews.aggregate(avg=Avg('stars'))['avg']
+        rate = product.review.aggregate(avg=Avg('stars'))['avg']
         try:
-            form = ReviewForm(instance=reviews.get(owner=request.user))
+            form = ReviewForm(instance=product.review.get(product=product))
         except ObjectDoesNotExist:
             form = ReviewForm
         context = {
             'product': product,
             'related_products': related_products,
-            'reviews': reviews,
             'rate': rate,
             'form': form,
         }
@@ -88,9 +87,23 @@ class DetailProductView(View):
             stars = form.cleaned_data['stars']
             text = form.cleaned_data['text']
             if request.user.is_authenticated:
-                new_rev = Review.objects.create(owner=request.user, text=text, stars=stars, product=product)
-                product.review.add(new_rev)
-                product.save()
+                try:
+                    Review.objects.get(product=product)
+                    Review.objects.filter(product=product).update(
+                        owner=request.user,
+                        text=text,
+                        stars=stars,
+                        product=product,
+                    )
+                except ObjectDoesNotExist:
+                    new_rev = Review.objects.create(
+                        owner=request.user,
+                        text=text,
+                        stars=stars,
+                        product=product
+                    )
+                    product.review.add(new_rev)
+                    product.save()
                 messages.info(request, 'Спасибо за отзыв!')
                 return redirect('/')
             else:
@@ -161,7 +174,7 @@ class FavoritesView(FavoritesMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return FavoriteProduct.objects.filter(owner=self.request.user)
+        return FavoriteProduct.objects.filter(owner=self.request.user).select_related('product')
 
 
 class MakeOrderView(CartMixin, View):

@@ -44,11 +44,11 @@ class Review(models.Model):
         ('2', '★★'),
         ('1', '★'),
     ]
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)  # Изменить на ForIn.. и переделать логику с добалением
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)  # Изменить на ForIn.. и переделать логику с добалением
     stars = models.CharField(choices=RATING_CHOICES, default=1, max_length=20)
     text = models.TextField(max_length=500, verbose_name='Озыв')
     product = models.ForeignKey('Product', verbose_name='Продукт', on_delete=models.CASCADE,
-                                related_name='review_product')
+                                   related_name='review_product')
 
     class Meta:
         verbose_name = 'Отзыв'
