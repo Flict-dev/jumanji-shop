@@ -10,7 +10,7 @@ class CartMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             try:
-                cart = Cart.objects.get(owner=request.user)
+                cart = Cart.objects.get(owner=request.user, in_order=False)
                 if cart.final_quantity is None:
                     cart.final_price = 0
                     cart.final_quantity = 0

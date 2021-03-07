@@ -44,7 +44,7 @@ class Review(models.Model):
         ('2', '★★'),
         ('1', '★'),
     ]
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE)  # Изменить на ForIn.. и переделать логику с добалением
     stars = models.CharField(choices=RATING_CHOICES, default=1, max_length=20)
     text = models.TextField(max_length=500, verbose_name='Озыв')
     product = models.ForeignKey('Product', verbose_name='Продукт', on_delete=models.CASCADE,
@@ -143,7 +143,7 @@ class FavoriteProduct(models.Model):
         verbose_name_plural = 'Продукты для fav'
 
 
-# ДОДЕЛАТЬ
+# ДОДЕЛАТЬ очистку корзины после заказа
 class Order(models.Model):
     first_name = models.CharField(max_length=30, verbose_name='Имя')
     last_name = models.CharField(max_length=30, verbose_name='Фамилия')
@@ -162,3 +162,5 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
+
+# СДЕЛАТЬ ПАГИНАЦИЮ

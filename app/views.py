@@ -1,9 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.paginator import Paginator
-from django.db import transaction
 from django.db.models import Q, Avg
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -161,17 +158,16 @@ class DelFromFavorites(FavoritesMixin, View):
 class FavoritesView(FavoritesMixin, ListView):
     template_name = 'main/favorites.html'
     model = Favorites
-    context_object_name = 'favorites'
+    paginate_by = 3
 
     def get_queryset(self):
-        return Favorites.objects.filter(owner=self.request.user)
+        return FavoriteProduct.objects.filter(owner=self.request.user)
 
 
 class MakeOrderView(CartMixin, View):
     def get(self, request):
         return render(request, 'main/order.html', context={'form': OrderForm, 'cart': self.cart})
 
-    @transaction.atomic
     def post(self, request, *args, **kwargs):
         form = OrderForm(request.POST)
         if form.is_valid():
@@ -191,3 +187,6 @@ class MakeOrderView(CartMixin, View):
             messages.info(request, 'Спасибо за заказ!')
             return redirect('/')
         return render(request, 'main/order.html', context={'form': form, 'cart': self.cart})
+# Сделать change_qty в Cart
+# Сделать нормальный профиль с заказами
+# Наконец разобраться с debug и досмотреть ролик про пагинацию, админку
