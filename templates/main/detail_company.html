@@ -1,21 +1,20 @@
 {% extends 'base/base.html' %}
 {% block content %}
     <div class="container">
-        <h1 class="my-4">Каталог бренда: {{ company.title }}</h1>
+        <div class="d-flex align-items-center flex-column">
+            <h1 class="my-4">Каталог бренда: {{ company.title }}</h1>
+            <img class="card-img-top w-50"
+                 src="{{ company.logo.url }}" alt="img">
+        </div>
         <div class="row">
-            {% for item in products %}
+            {% for item in categories %}
                 <div class="col-lg-4 mb-4">
                     <div class="card h-100">
                         <h4 class="card-header">{{ item.title }}</h4>
                         <div class="card-body">
-                            <a href="{% url 'detail_product' pk=item.pk %}">
-                                <img class="card-img-top" style="width: 300px; height: 160px;"
-                                     src="{{ item.image.url }}" alt="img">
-                            </a>
-                            <hr>
                         </div>
                         <div class="card-footer">
-                            <a href="{% url 'cart-add' pk=item.pk %}" class="btn btn-primary">Подробнее</a>
+                            <a href="{% url 'detail_category' pk=item.pk %}" class="btn btn-primary">Подробнее</a>
                         </div>
                     </div>
                 </div>

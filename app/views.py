@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.utils import IntegrityError
 from django.db.models import Q, Avg
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -9,10 +8,14 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView
 from django.views.generic.base import View
 
-from app.forms import ReviewForm, OrderForm
+from app.forms import ReviewForm, OrderForm, ChangeQtyForm
 from app.mixins import CartMixin, FavoritesMixin
 from app.models import Product, CartProduct, Review, Category, Company, Favorites, FavoriteProduct, Order
 from app.utils import recount_cart
+
+
+def page404(request, exception):
+    return render(request, 'errors/404.html')
 
 
 class MainView(TemplateView):
@@ -57,24 +60,37 @@ class DeleteFromCart(CartMixin, View):
 @method_decorator(login_required, name='get')
 class CartView(CartMixin, View):
     def get(self, request):
-        return render(request, 'main/cart.html', context={'cart': self.cart})
+        return render(request, 'main/cart.html', context={'cart': self.cart, 'form': ChangeQtyForm})
+
+
+class ChangeQty(CartMixin, View):
+    def post(self, request, **kwargs):
+        product_cart = CartProduct.objects.get(user=request.user, pk=kwargs.get('pk'))
+        form = ChangeQtyForm(request.POST)
+        if form.is_valid():
+            product_cart.qty = form.cleaned_data['number']
+            product_cart.save()
+            recount_cart(self.cart)
+            return redirect('/cart/')
+        return render(request, 'main/cart.html', context={'cart': self.cart, 'form': form})
 
 
 # продумать момент с instance
 class DetailProductView(View):
     def get(self, request, pk):
+        user = request.user
         product = Product.objects.get(id=pk)
         related_products = Product.objects.filter(
             Q(category__title__icontains=product.category.title)
         )
         rate = product.review.aggregate(avg=Avg('stars'))['avg']
         try:
-            form = ReviewForm(instance=product.review.get(product=product))
+            form = ReviewForm(instance=product.review.get(owner=user))
         except ObjectDoesNotExist:
             form = ReviewForm
         context = {
             'product': product,
-            'related_products': related_products,
+            'related_products': related_products.select_related('category'),
             'rate': rate,
             'form': form,
         }
@@ -84,26 +100,12 @@ class DetailProductView(View):
         form = ReviewForm(request.POST)
         if form.is_valid():
             product = Product.objects.get(pk=kwargs['pk'])
-            stars = form.cleaned_data['stars']
-            text = form.cleaned_data['text']
+            defaults = form.cleaned_data
             if request.user.is_authenticated:
-                try:
-                    Review.objects.get(product=product)
-                    Review.objects.filter(product=product).update(
-                        owner=request.user,
-                        text=text,
-                        stars=stars,
-                        product=product,
-                    )
-                except ObjectDoesNotExist:
-                    new_rev = Review.objects.create(
-                        owner=request.user,
-                        text=text,
-                        stars=stars,
-                        product=product
-                    )
-                    product.review.add(new_rev)
-                    product.save()
+                Review.objects.update_or_create(product=product, owner=request.user, defaults=defaults)
+                new_rev = Review.objects.get(product=product)
+                product.review.add(new_rev)
+                product.save()
                 messages.info(request, 'Спасибо за отзыв!')
                 return redirect('/')
             else:
@@ -125,9 +127,9 @@ class CatalogListView(TemplateView):
 class DetailCompanyView(View):  # Продумать логику
     def get(self, request, *args, **kwargs):
         company = get_object_or_404(Company, pk=kwargs['pk'])
-        products = Product.objects.filter(brand=company)
+        categories = Category.objects.filter(brand=company)
         context = {
-            'products': products,
+            'categories': categories,
             'company': company,
         }
         return render(request, 'main/detail_company.html', context=context)
@@ -186,14 +188,9 @@ class MakeOrderView(CartMixin, View):
         if form.is_valid():
             self.cart.in_order = True
             self.cart.save()
+            defaults = form.cleaned_data
             Order.objects.create(
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
-                phone=form.cleaned_data['phone'],
-                address=form.cleaned_data['address'],
-                email=form.cleaned_data['email'],
-                date_at=form.cleaned_data['date_at'],
-                comment=form.cleaned_data['comment'],
+                defaults=defaults,
                 owner=request.user,
                 cart=self.cart
             )
@@ -202,4 +199,4 @@ class MakeOrderView(CartMixin, View):
         return render(request, 'main/order.html', context={'form': form, 'cart': self.cart})
 # Сделать change_qty в Cart
 # Сделать нормальный профиль с заказами
-# Наконец разобраться с debug и досмотреть ролик про пагинацию, админку
+# Досмотреть ролик про пагинацию, админку

@@ -8,7 +8,7 @@ from app.views import (
     DeleteFromCart,
     CatalogListView,
     DetailCompanyView,
-    CategoryDetailView, FavoritesView, AddToFavorites, DelFromFavorites, MakeOrderView,
+    CategoryDetailView, FavoritesView, AddToFavorites, DelFromFavorites, MakeOrderView, ChangeQty,
 )
 
 urlpatterns = [
@@ -23,5 +23,6 @@ urlpatterns = [
     path('favorites/', FavoritesView.as_view(), name='favorites'),
     path('add-to-favorites/product/<int:pk>', AddToFavorites.as_view(), name='favorites-add'),
     path('del-from-favorites/product/<int:pk>', DelFromFavorites.as_view(), name='favorites-del'),
-    path('order/', MakeOrderView.as_view(), name='order')
+    path('order/', MakeOrderView.as_view(), name='order'),
+    path('change-qty/<int:pk>', ChangeQty.as_view(), name='qty'),
 ]

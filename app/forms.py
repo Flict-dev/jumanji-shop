@@ -38,3 +38,17 @@ class OrderForm(ModelForm):
             'date_at': 'Число доставки',
             'comment': 'Комментарий к заказу',
         }
+
+
+class ChangeQtyForm(forms.Form):
+    number = forms.IntegerField(
+        min_value=1,
+        required=False,
+        label=' ',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control w-50',
+                'placeholder': 'Кол-во',
+            },
+        )
+    )

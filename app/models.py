@@ -27,6 +27,7 @@ class Product(models.Model):
 
 class Category(models.Model):
     title = models.CharField(max_length=30, verbose_name='Название категории')
+    brand = models.ManyToManyField('Company', verbose_name='Компания')
 
     class Meta:
         verbose_name = 'Категория'
@@ -47,8 +48,10 @@ class Review(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)  # Изменить на ForIn.. и переделать логику с добалением
     stars = models.CharField(choices=RATING_CHOICES, default=1, max_length=20)
     text = models.TextField(max_length=500, verbose_name='Озыв')
-    product = models.ForeignKey('Product', verbose_name='Продукт', on_delete=models.CASCADE,
-                                   related_name='review_product')
+    product = models.ForeignKey('Product', verbose_name='Продукт',
+                                on_delete=models.CASCADE,
+                                related_name='review_product'
+                                )
 
     class Meta:
         verbose_name = 'Отзыв'
@@ -85,13 +88,13 @@ class Speciality(models.Model):
 
 class Cart(models.Model):
     products = models.ManyToManyField('CartProduct', verbose_name='Продукты', blank=True, related_name='products')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец', blank=True)
-    final_quantity = models.PositiveIntegerField(verbose_name='Кол-во товара', default=0, null=True)
-    final_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Окончательная цена', default=0,
-                                      null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец', null=True)
+    final_quantity = models.PositiveIntegerField(verbose_name='Кол-во товара', default=0)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Окончательная цена', default=0)
     anon = models.BooleanField(default=False, verbose_name='Анон')
     in_order = models.BooleanField(default=False, verbose_name='Статус корзины')
 
+    # Оптимизировать Mixin и посмотреть nullы
     def __str__(self):
         return f'Корзина пользователья - {self.owner.username}'
 
@@ -143,7 +146,6 @@ class FavoriteProduct(models.Model):
         verbose_name_plural = 'Продукты для fav'
 
 
-# ДОДЕЛАТЬ очистку корзины после заказа
 class Order(models.Model):
     first_name = models.CharField(max_length=30, verbose_name='Имя')
     last_name = models.CharField(max_length=30, verbose_name='Фамилия')
@@ -162,5 +164,3 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
-
-# СДЕЛАТЬ ПАГИНАЦИЮ
